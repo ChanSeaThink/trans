@@ -22,4 +22,6 @@ urlpatterns = [
     url(r'^django-docs/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DOC_ROOT}),
 
     url(r'^$', 'dj.views.index'),
+    url(r'^getzh$', 'dj.views.getzh'),
+    url(r'^savezh$', 'dj.views.savezh'),
 ]
