@@ -149,7 +149,9 @@ window.onload=function(){
 		$(".trans-box .zh").focus(function(){
 			state2=true;
 			if(flag){
-				$(this).text("");
+				if($(this).text()=="尚未翻译..."){
+					$(this).text("");
+				}
 			}
 			$(".trans-box .hint,.trans-box .warn").hide();
 			$(this).css("boxShadow","0 0 10px 1px #39e639");
@@ -157,7 +159,9 @@ window.onload=function(){
 		$(".trans-box .zh").blur(function(){
 			state2=false;
 			if(flag){
-				$(this).text("尚未翻译...");
+				if($(this).text()==""){
+					$(this).text("尚未翻译...");
+				}
 			}
 			$(this).css("boxShadow","none");
 			setTimeout(function(){
