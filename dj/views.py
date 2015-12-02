@@ -15,7 +15,13 @@ def getzh(request):
     page_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
     #print page_url
 
-
+    content = ''
+    try:
+        content_obj = Content.objects.get(page_url = page_url)
+        content = content_obj.content
+    except Content.DoesNotExist:
+        pass
+    print content_obj.content_id
     return HttpResponse('getzh')
 
 
