@@ -1,17 +1,17 @@
 window.onload=function(){
 	//请求翻译表
-		var table;
+		var table=[];
 		$.ajax({
 			url:"/getzh",
 			type:"get",
 			data:null,
-			success:function(data){
+			success:function(data){console.log(data)
 				if(data.content){
 					table=data;
 				}
 			},
 			error:function(){
-				console.log(argusments);
+				console.log(arguments);
 			}
 		});
 	//给全文添加font标签
@@ -113,8 +113,8 @@ window.onload=function(){
 		"color:white;"+
 		"background:#515151;"+
 		"box-shadow:0 0 20px #515151;";
-		var style11="padding:5px;margin-bottom:5px;max-height:80px;";
-		var style12="padding:5px;maxheight:80px;color:#515151;background:white;";
+		var style11="padding:5px;margin-bottom:5px;max-height:200px;overflow-y:auto;";
+		var style12="padding:5px;max-height:200px;color:#515151;background:white;overflow-y:auto;";
 		var style13="display:inline-block;margin-left:165px;margin-top:15px;width:80px;height:25px;line-height:25px;text-align:center;color:white;background:#262626;cursor:pointer;";
 		var style14="display:none;float:right;color:white;margin-top:15px;margin-right:50px;width:80px;height:25px;line-height:25px;";
 		var style15="display:none;float:right;color:red;margin-top:10px;margin-right:50px;width:80px;height:25px;line-height:25px;";
@@ -142,6 +142,14 @@ window.onload=function(){
 		$("body").on("mouseup",".trans-box .post",function(){
 			$(this).css({"background":"#262626","color":"white"});
 		});
+		$(".trans-box .zh")[0].onpaste=function(e){
+			e.preventDefault();
+			var text=e.clipboardData.getData("text/plain");
+			if(text){
+				document.execCommand("insertText",false,text);
+			}
+
+		};
 	//显示原文（翻译）事件
 		var time,that;
 		var id,en,zh;
@@ -168,7 +176,7 @@ window.onload=function(){
 				}
 				id=that.attr("id");
 				en=that.text().replace(/\n/g," ");
-				//zh=en;
+				zh="等待中...";
 				//*
 				for(var i=0;i<table.length;i++){
 					if(table[i][0]==id){
@@ -200,6 +208,11 @@ window.onload=function(){
 	//post翻译后的翻译
 		$("body").on("click",".trans-box .post",function(){
 			zh=$(".trans-box .zh").text();
+			if(zh.length>10000){
+				$(".trans-box .hint").hide();
+				$(".trans-box .warn").show();
+				return
+			}
 			$.ajax({
 				url:"/savezh",
 				type:"post",
@@ -215,7 +228,7 @@ window.onload=function(){
 					}
 				},
 				error:function(){
-					console.log(argusment);
+					console.log(arguments);
 				}
 			});
 		});
