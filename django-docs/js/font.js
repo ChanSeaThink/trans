@@ -108,34 +108,71 @@ window.onload=function(){
 		"top:0;left:0;"+
 		"padding:15px;"+
 		"width:400px;"+
-		"min-height:100px;"+
 		"text-align:left;"+
 		"color:white;"+
 		"background:#515151;"+
 		"box-shadow:0 0 20px #515151;";
 		var style11="padding:5px;margin-bottom:5px;max-height:200px;overflow-y:auto;";
-		var style12="padding:5px;max-height:200px;color:#515151;background:white;overflow-y:auto;";
-		var style13="display:inline-block;margin-left:165px;margin-top:15px;width:80px;height:25px;line-height:25px;text-align:center;color:white;background:#262626;cursor:pointer;";
-		var style14="display:none;float:right;color:white;margin-top:15px;margin-right:50px;width:80px;height:25px;line-height:25px;";
-		var style15="display:none;float:right;color:red;margin-top:10px;margin-right:50px;width:80px;height:25px;line-height:25px;";
-		$("body").append("<div class='trans-box' style='"+style1+
+		var style12="display:inline-block;margin-top-5px;text-indent:5px;cursor:pointer;";
+		var style2="display:none;";
+		var style21="padding:5px;max-height:200px;color:#515151;background:white;overflow-y:auto;";
+		var style22="display:inline-block;margin-left:165px;margin-top:15px;width:80px;height:25px;line-height:25px;text-align:center;color:white;background:#262626;cursor:pointer;";
+		var style23="display:none;float:right;color:white;margin-top:15px;margin-right:50px;width:80px;height:25px;line-height:25px;";
+		var style24="display:none;float:right;color:red;margin-top:10px;margin-right:50px;width:80px;height:25px;line-height:25px;";
+		$("body").append("<div class='trans-box' contenteditable style='"+style1+
 			"''><div style='text-indent:5px;'>原文:</div><div class='en' style='"+style11+
-			"'></div><div class='zh' style='"+style12+
-			"' contenteditable='true'></div><div class='hint' style='"+style14+
-			"'>提交成功！</div><div class='warn' style='"+style15+
-			"'>提交失败！</div><div class='post' style='"+style13+
-			"'>提交</div></div>");
+			"'></div><div class='launch' style='"+style12+
+			"'>翻译</div><div class='box' style='"+style2+
+			"'><div class='zh' style='"+style21+
+			"' contenteditable='true'></div><div class='hint' style='"+style23+
+			"'>提交成功！</div><div class='warn' style='"+style24+
+			"'>提交失败！</div><div class='post' style='"+style22+
+			"'>提交</div></div></div>");
 		$(".trans-box").css("fontFamily","微软雅黑");
 		$(".trans-box .en").css("fontFamily","Arial");
 		$(".trans-box .zh").css("outline","none");
+		$(".trans-box").css("outline","none");
+		//把trans-box变为contenteditable即可定义焦点事件，所有子元素（除.zh）还原为非contenteditable
+		$(".trans-box *").not(".zh").attr({"contenteditable":false});
+		var state1=false,state2=false;
+		$(".trans-box").focus(function(){
+			state1=true;
+		});
+		$(".trans-box").blur(function(){
+			state1=false;
+			setTimeout(function(){
+				if(!state2){
+					$(".trans-box").hide();
+				}
+			},10);
+		});
 		$(".trans-box .zh").focus(function(){
+			state2=true;
+			if(flag){
+				$(this).text("");
+			}
 			$(".trans-box .hint,.trans-box .warn").hide();
 			$(this).css("boxShadow","0 0 10px 1px #39e639");
 		});
 		$(".trans-box .zh").blur(function(){
+			state2=false;
+			if(flag){
+				$(this).text("尚未翻译...");
+			}
 			$(this).css("boxShadow","none");
+			setTimeout(function(){
+				if(!state1){
+					$(".trans-box").hide();
+				}
+			},10);
 		});
 	//窗口自带事件
+		var status=false;//status表示悬浮窗的状态
+		$("body").on("click",".trans-box .launch",function(){
+			$(".trans-box .launch").hide();
+			$(".trans-box .box").show();
+			status=true;
+		});
 		$("body").on("mousedown",".trans-box .post",function(){
 			$(this).css({"background":"#313131","color":"#f2f2f2"});
 		});
@@ -148,11 +185,11 @@ window.onload=function(){
 			if(text){
 				document.execCommand("insertText",false,text);
 			}
-
 		};
 	//显示原文（翻译）事件
 		var time,that;
 		var id,en,zh;
+		var flag;
 		$("html").on("mouseenter","font",function(e){
 			e.stopPropagation();
 			clearTimeout(time);
@@ -178,16 +215,26 @@ window.onload=function(){
 				en=that.text().replace(/\n/g," ");
 				zh="尚未翻译...";
 				//*
-				for(var i=0;i<table.length;i++){
+				var i;
+				for(i=0;i<table.length;i++){
 					if(table[i][0]==id){
 						zh=table[i][1];
 					}
 				}//*/
+				if(i==table.length){
+					flag=true;
+				}
+				else{
+					flag=false;
+				}
 				$(".trans-box .en").text(en);
 				$(".trans-box .zh").text(zh);
 				$(".trans-box .hint").hide();
 				$(".trans-box .warn").hide();
+				$(".trans-box .box").hide();
+				$(".trans-box .launch").show();
 				$(".trans-box").css({"left":x,"top":y}).show();
+				status=false;
 			},600);
 			//console.log($(this).text().replace(/\n/g," "));
 		});
@@ -196,14 +243,23 @@ window.onload=function(){
 			clearTimeout(time);
 			$(document).off("mousemove");
 			time=setTimeout(function(){
-				$(".trans-box").hide();
+				if(!status){
+					$(".trans-box").hide();
+				}
 			},300);
 		});
 		$("html").on("mouseenter",".trans-box",function(){
 			clearTimeout(time);
 		});
 		$("html").on("mouseleave",".trans-box",function(){
-			$(".trans-box").hide();
+			if(!status){
+				$(".trans-box").hide();
+			}
+		});
+		$("body").on("click",function(e){
+			if($(this).parents(".trans-box").text()){
+				alert(1)
+			}
 		});
 	//post翻译后的翻译
 		$("body").on("click",".trans-box .post",function(){
