@@ -3,7 +3,7 @@ from django.db import models
 
 # Create your models here.
 
-class sentence(models.Model):
+class Sentence(models.Model):
     '''
     用于存储每个翻译的句子。
     '''
@@ -15,7 +15,7 @@ class sentence(models.Model):
     create_date_time = models.DateTimeField()
 
 
-class content(models.Model):
+class Content(models.Model):
     '''
     用于存储页面完整的翻译信息内容。
     '''

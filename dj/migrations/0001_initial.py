@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='content',
+            name='Content',
             fields=[
                 ('content_id', models.AutoField(serialize=False, primary_key=True)),
                 ('page_url', models.TextField()),
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='sentence',
+            name='Sentence',
             fields=[
                 ('sentence_id', models.AutoField(serialize=False, primary_key=True)),
                 ('page_url', models.TextField()),

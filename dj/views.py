@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from datetime import datetime
+from dj.models import *
 import json
 
 # Create your views here.
@@ -9,7 +10,12 @@ def index(request):
 
 
 def getzh(request):
-    
+    page_all_url = request.META['HTTP_REFERER']
+    page_url_without_http = page_all_url[page_all_url.find(r'//') + 2:]
+    page_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
+    #print page_url
+
+
     return HttpResponse('getzh')
 
 
