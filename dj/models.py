@@ -1,3 +1,26 @@
+# -*- coding: utf8 -*-
 from django.db import models
 
 # Create your models here.
+
+class sentence(models.Model):
+    '''
+    用于存储每个翻译的句子。
+    '''
+
+    sentence_id = models.AutoField(primary_key=True)
+    page_url = models.TextField()
+    zh_sentence = models.TextField()
+    en_sentence = models.TextField()
+    create_date_time = models.DateTimeField()
+
+
+class content(models.Model):
+    '''
+    用于存储页面完整的翻译信息内容。
+    '''
+
+    content_id = models.AutoField(primary_key=True)
+    page_url = models.TextField()
+    content = models.TextField()
+    create_date_time = models.DateTimeField()
