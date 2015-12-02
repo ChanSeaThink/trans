@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from datetime import datetime
@@ -22,15 +23,16 @@ def getzh(request):
     except Content.DoesNotExist:
         pass
 
-    content_json = None
+    content_data = None
     if content == '':
-        content_json = None
+        pass
     else:
+        #补充有数据时的的content_data
         pass
     #print 'content_json', content_json
 
     json_dict = {
-        'content':content_json
+        'content':content_data
     }
     json_obj = json.dumps(json_dict, ensure_ascii = False)
     return HttpResponse(json_obj, content_type="application/json")

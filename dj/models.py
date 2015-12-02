@@ -9,6 +9,7 @@ class Sentence(models.Model):
     '''
 
     sentence_id = models.AutoField(primary_key=True)
+    sentence_in_page_id = models.IntegerField()
     page_url = models.TextField()
     zh_sentence = models.TextField()
     en_sentence = models.TextField()

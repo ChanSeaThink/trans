@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
             name='Sentence',
             fields=[
                 ('sentence_id', models.AutoField(serialize=False, primary_key=True)),
+                ('sentence_in_page_id', models.IntegerField()),
                 ('page_url', models.TextField()),
                 ('zh_sentence', models.TextField()),
                 ('en_sentence', models.TextField()),
