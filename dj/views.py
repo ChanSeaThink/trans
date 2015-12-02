@@ -21,8 +21,19 @@ def getzh(request):
         content = content_obj.content
     except Content.DoesNotExist:
         pass
-    print content_obj.content_id
-    return HttpResponse('getzh')
+
+    content_json = None
+    if content == '':
+        content_json = None
+    else:
+        pass
+    #print 'content_json', content_json
+
+    json_dict = {
+        'content':content_json
+    }
+    json_obj = json.dumps(json_dict, ensure_ascii = False)
+    return HttpResponse(json_obj, content_type="application/json")
 
 
 def savezh(request):
