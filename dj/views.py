@@ -39,4 +39,31 @@ def getzh(request):
 
 
 def savezh(request):
-    return HttpResponse('savezh')
+    page_all_url = request.META['HTTP_REFERER']
+    page_url_without_http = page_all_url[page_all_url.find(r'//') + 2:]
+    page_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
+
+    sentence_in_page_id = request.POST.get('id', '')
+    zh_sentence = request.POST.get('zh', '')
+    en_sentence = request.POST.get('en', '')
+
+    return_state = False
+
+    if sentence_in_page_id != '' and zh_sentence != '' and en_sentence != '':
+        sentence_obj = Sentence()
+        sentence_obj.sentence_in_page_id = int(sentence_in_page_id)
+        sentence_obj.page_url = page_url
+        sentence_obj.zh_sentence = zh_sentence
+        sentence_obj.en_sentence = en_sentence
+        sentence_obj.create_date_time = datetime.now()
+        sentence_obj.save()
+        #TODO:关于全文翻译的增加，修改两种状态。
+        return_state = True
+    else:
+        pass
+
+    json_dict = {
+        'state':return_state
+    }
+    json_obj = json.dumps(json_dict, ensure_ascii = False)
+    return HttpResponse(json_obj, content_type="application/json")
