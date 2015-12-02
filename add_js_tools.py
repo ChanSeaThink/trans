@@ -3,7 +3,7 @@ import os
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 #输入需要修改的文件夹名。
-doc_name = 'demo-docs'
+doc_name = 'django-docs'
 doc_path = os.path.join(base_dir, doc_name)
 #输入需要插入的js代码。
 js_doc_name = 'append_js.html'
