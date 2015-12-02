@@ -5,7 +5,7 @@ window.onload=function(){
 			url:"/getzh",
 			type:"get",
 			data:null,
-			success:function(data){console.log(data)
+			success:function(data){
 				if(data.content){
 					table=data;
 				}
@@ -176,7 +176,7 @@ window.onload=function(){
 				}
 				id=that.attr("id");
 				en=that.text().replace(/\n/g," ");
-				zh="等待中...";
+				zh="尚未翻译...";
 				//*
 				for(var i=0;i<table.length;i++){
 					if(table[i][0]==id){
@@ -208,11 +208,6 @@ window.onload=function(){
 	//post翻译后的翻译
 		$("body").on("click",".trans-box .post",function(){
 			zh=$(".trans-box .zh").text();
-			if(zh.length>10000){
-				$(".trans-box .hint").hide();
-				$(".trans-box .warn").show();
-				return
-			}
 			$.ajax({
 				url:"/savezh",
 				type:"post",
