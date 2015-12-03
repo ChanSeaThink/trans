@@ -7,7 +7,7 @@ window.onload=function(){
 			data:null,
 			success:function(data){
 				if(data.content){
-					table=data;
+					table=data.content;
 				}
 			},
 			error:function(){
@@ -103,6 +103,18 @@ window.onload=function(){
 					connect(p,fragment);
 				}
 			}
+	//把table数据覆盖进页面
+		var interval=setInterval(function(){
+			if(table){
+				clearInterval(interval);
+				for(var i=0;i<table.length;i++){
+					var font_id=table[i][0];
+					table[i][2]=$("font#"+font_id).text();
+					$("font#"+font_id).text(table[i][1]);
+					$("font#"+font_id).addClass("ripe");
+				}
+			}
+		},1000);
 	//创建显示窗口
 		var style1="display:none;position:absolute;"+
 		"top:0;left:0;"+
@@ -119,7 +131,7 @@ window.onload=function(){
 		var style22="display:inline-block;margin-left:165px;margin-top:15px;width:80px;height:25px;line-height:25px;text-align:center;color:white;background:#262626;cursor:pointer;";
 		var style23="display:none;float:right;color:white;margin-top:15px;margin-right:50px;width:80px;height:25px;line-height:25px;";
 		var style24="display:none;float:right;color:red;margin-top:10px;margin-right:50px;width:80px;height:25px;line-height:25px;";
-		$("body").append("<div class='trans-box' contenteditable style='"+style1+
+		$("body").append("<div class='trans-box' style='"+style1+
 			"''><div style='text-indent:5px;'>原文:</div><div class='en' style='"+style11+
 			"'></div><div class='launch' style='"+style12+
 			"'>翻译</div><div class='box' style='"+style2+
@@ -131,23 +143,14 @@ window.onload=function(){
 		$(".trans-box").css("fontFamily","微软雅黑");
 		$(".trans-box .en").css("fontFamily","Arial");
 		$(".trans-box .zh").css("outline","none");
-		$(".trans-box").css("outline","none");
-		//把trans-box变为contenteditable即可定义焦点事件，所有子元素（除.zh）还原为非contenteditable
-		$(".trans-box *").not(".zh").attr({"contenteditable":false});
-		var state1=false,state2=false;
-		$(".trans-box").focus(function(){
-			state1=true;
+		$()
+		$("body").on("click",".trans-box",function(e){
+			e.stopPropagation();
 		});
-		$(".trans-box").blur(function(){
-			state1=false;
-			setTimeout(function(){
-				if(!state2){
-					$(".trans-box").hide();
-				}
-			},10);
+		$("body").on("click",function(e){
+			$(".trans-box").hide();
 		});
 		$(".trans-box .zh").focus(function(){
-			state2=true;
 			if(flag){
 				if($(this).text()=="尚未翻译..."){
 					$(this).text("");
@@ -157,18 +160,12 @@ window.onload=function(){
 			$(this).css("boxShadow","0 0 10px 1px #39e639");
 		});
 		$(".trans-box .zh").blur(function(){
-			state2=false;
 			if(flag){
 				if($(this).text()==""){
 					$(this).text("尚未翻译...");
 				}
 			}
 			$(this).css("boxShadow","none");
-			setTimeout(function(){
-				if(!state1){
-					$(".trans-box").hide();
-				}
-			},10);
 		});
 	//窗口自带事件
 		var status=false;//status表示悬浮窗的状态
@@ -195,6 +192,9 @@ window.onload=function(){
 		var id,en,zh;
 		var flag;
 		$("html").on("mouseenter","font",function(e){
+			if(status){
+				return
+			}
 			e.stopPropagation();
 			clearTimeout(time);
 			that=$(this);
@@ -216,7 +216,17 @@ window.onload=function(){
 					x=x-w-60;
 				}
 				id=that.attr("id");
-				en=that.text().replace(/\n/g," ");
+				if(that.hasClass("ripe")){
+					var font_id=that.attr("id");
+					for(var i=0;i<table.length;i++){
+						if(table[i][0]==font_id){
+							en=table[i][2];
+						}
+					}
+				}
+				else{
+					en=that.text().replace(/\n/g," ");
+				}
 				zh="尚未翻译...";
 				//*
 				var i;
@@ -260,17 +270,13 @@ window.onload=function(){
 				$(".trans-box").hide();
 			}
 		});
-		$("body").on("click",function(e){
-			if($(this).parents(".trans-box").text()){
-				alert(1)
-			}
-		});
 	//post翻译后的翻译
 		$("body").on("click",".trans-box .post",function(){
 			zh=$(".trans-box .zh").text();
 			$.ajax({
 				url:"/savezh",
 				type:"post",
+				//headers:{"X-CSRFToken":"1"},
 				data:{id:id,en:en,zh:zh},
 				success:function(data){
 					if(data.state){
