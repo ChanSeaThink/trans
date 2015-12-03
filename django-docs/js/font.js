@@ -130,7 +130,7 @@ window.onload=function(){
 		var style21="padding:5px;max-height:200px;color:#515151;background:white;overflow-y:auto;";
 		var style22="display:inline-block;margin-left:165px;margin-top:15px;width:80px;height:25px;line-height:25px;text-align:center;color:white;background:#262626;cursor:pointer;";
 		var style23="display:none;float:right;color:white;margin-top:15px;margin-right:50px;width:80px;height:25px;line-height:25px;";
-		var style24="display:none;float:right;color:red;margin-top:10px;margin-right:50px;width:80px;height:25px;line-height:25px;";
+		var style24="display:none;float:right;color:red;margin-top:15px;margin-right:50px;width:80px;height:25px;line-height:25px;";
 		$("body").append("<div class='trans-box' style='"+style1+
 			"''><div style='text-indent:5px;'>原文:</div><div class='en' style='"+style11+
 			"'></div><div class='launch' style='"+style12+
@@ -274,6 +274,7 @@ window.onload=function(){
 	//post翻译后的翻译
 		$("body").on("click",".trans-box .post",function(){
 			zh=$(".trans-box .zh").text();
+			zh=zh=="尚未翻译..."?"":zh;
 			$.ajax({
 				url:"/savezh",
 				type:"post",
