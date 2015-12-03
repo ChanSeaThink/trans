@@ -36,7 +36,7 @@ def getzh(request):
         'content':content_data
     }
     json_obj = json.dumps(json_dict, ensure_ascii = False)
-    print json_obj
+
     return HttpResponse(json_obj, content_type="application/json")
 
 

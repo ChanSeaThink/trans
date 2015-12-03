@@ -25,8 +25,10 @@ SECRET_KEY = 'rf8d*#krc_qdk-7#0ebo3soqmk1$s$3r!$uepw$%=rcgwth@l('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+if DEBUG:
+    ALLOWED_HOSTS = []
+else:
+    ALLOWED_HOSTS = ['itconf.cn', 'www.itconf.cn']
 
 # Application definition
 
