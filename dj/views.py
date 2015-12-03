@@ -71,7 +71,6 @@ def savezh(request):
             position = 0
             content_double_list_len = len(content_double_list)
             while (position < content_double_list_len):
-                print sentence_list[0], content_double_list[position][0], sentence_list[0] == content_double_list[position][0]
                 if sentence_list[0] > content_double_list[position][0]:
                     position += 1
                     if position == content_double_list_len:
