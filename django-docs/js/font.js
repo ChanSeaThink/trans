@@ -149,6 +149,7 @@ window.onload=function(){
 		});
 		$("body").on("click",function(e){
 			$(".trans-box").hide();
+			status=false;
 		});
 		$(".trans-box .zh").focus(function(){
 			if(flag){
