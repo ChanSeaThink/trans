@@ -27,8 +27,9 @@ def getzh(request):
     if content == '':
         pass
     else:
-        #补充有数据时的的content_data
-        pass
+        content_obj = Content.objects.get(page_url = page_url)
+        content_json_str = content_obj.content
+        content_data = json.loads(content_json_str)['content']
     #print 'content_json', content_json
 
     json_dict = {
@@ -39,6 +40,7 @@ def getzh(request):
 
 
 def savezh(request):
+    print request.POST
     page_all_url = request.META['HTTP_REFERER']
     page_url_without_http = page_all_url[page_all_url.find(r'//') + 2:]
     page_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
@@ -46,7 +48,7 @@ def savezh(request):
     sentence_in_page_id = request.POST.get('id', '')
     zh_sentence = request.POST.get('zh', '')
     en_sentence = request.POST.get('en', '')
-
+    print 'here'
     return_state = False
 
     if sentence_in_page_id != '' and zh_sentence != '' and en_sentence != '':
@@ -57,7 +59,44 @@ def savezh(request):
         sentence_obj.en_sentence = en_sentence
         sentence_obj.create_date_time = datetime.now()
         sentence_obj.save()
-        #TODO:关于全文翻译的增加，修改两种状态。
+
+        sentence_list = []
+        sentence_list.append(int(sentence_in_page_id))
+        sentence_list.append(zh_sentence)
+
+        try:
+            content_obj = Content.objects.get(page_url = page_url)
+            content_json_str = content_obj.content
+            content_double_list = json.loads(content_json_str)['content']
+            position = 0
+            while (True):
+                if sentence_list[0] > content_double_list[position][0]:
+                    position += 1
+                else:
+                    content_double_list.insert(position, sentence_list)
+                    json_dict = {
+                        'content':content_double_list
+                    }
+                    content_json_str = json.dumps(json_dict)
+                    content_obj.content = content_json_str
+                    content_obj.update_date_time = datetime.now()
+                    content_obj.save()
+                    break
+        except Content.DoesNotExist:
+            content_double_list = []
+            content_double_list.append(sentence_list)
+            json_dict = {
+                'content':content_double_list
+            }
+            content_json_str = json.dumps(json_dict)
+            content_obj = Content()
+            content_obj.page_url = page_url
+            content_obj.content = content_json_str
+            content_obj.create_date_time = datetime.now()
+            content_obj.update_date_time = datetime.now()
+            content_obj.save()
+
+        #return_state表示写入翻译数据成功
         return_state = True
     else:
         pass

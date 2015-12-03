@@ -14,9 +14,10 @@ class Migration(migrations.Migration):
             name='Content',
             fields=[
                 ('content_id', models.AutoField(serialize=False, primary_key=True)),
-                ('page_url', models.TextField()),
+                ('page_url', models.TextField(unique=True)),
                 ('content', models.TextField()),
                 ('create_date_time', models.DateTimeField()),
+                ('update_date_time', models.DateTimeField()),
             ],
         ),
         migrations.CreateModel(
@@ -24,7 +25,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('sentence_id', models.AutoField(serialize=False, primary_key=True)),
                 ('sentence_in_page_id', models.IntegerField()),
-                ('page_url', models.TextField()),
+                ('page_url', models.TextField(unique=True)),
                 ('zh_sentence', models.TextField()),
                 ('en_sentence', models.TextField()),
                 ('create_date_time', models.DateTimeField()),
