@@ -218,10 +218,10 @@ window.onload=function(){
 				}
 				id=that.attr("id");
 				if(that.hasClass("ripe")){
-					var font_id=that.attr("id");
 					for(var i=0;i<table.length;i++){
-						if(table[i][0]==font_id){
+						if(table[i][0]==id){
 							en=table[i][2];
+							break;
 						}
 					}
 				}
@@ -229,18 +229,18 @@ window.onload=function(){
 					en=that.text().replace(/\n/g," ");
 				}
 				zh="尚未翻译...";
-				//*
 				var i;
-				for(i=0;i<table.length;i++){
-					if(table[i][0]==id){
-						zh=table[i][1];
+				if(that.hasClass("ripe")){
+					for(i=0;i<table.length;i++){
+						if(table[i][0]==id){
+							zh=table[i][1];
+							flag=false;
+							break;
+						}
 					}
-				}//*/
-				if(i==table.length){
-					flag=true;
 				}
 				else{
-					flag=false;
+					flag=true;
 				}
 				$(".trans-box .en").text(en);
 				$(".trans-box .zh").text(zh);
@@ -283,6 +283,22 @@ window.onload=function(){
 					if(data.state){
 						$(".trans-box .warn").hide();
 						$(".trans-box .hint").show();
+						var i,f=$("font#"+id);
+						if(f.hasClass("ripe")){
+							for(i=0;i<table.length;i++){
+								if(table[i][0]==id){
+									table[i][1]=zh;
+									f.text(zh);
+									break;
+								}
+							}
+						}
+						else{
+							f.addClass("ripe");
+							f.text(zh);
+							table.push([id,zh,en]);
+						}
+						flag=false;
 					}
 					else{
 						$(".trans-box .hint").hide();
