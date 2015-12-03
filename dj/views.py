@@ -69,11 +69,18 @@ def savezh(request):
             content_json_str = content_obj.content
             content_double_list = json.loads(content_json_str)['content']
             position = 0
-            while (True):
+            content_double_list_len = len(content_double_list)
+            while (position < content_double_list_len):
+                print sentence_list[0], content_double_list[position][0], sentence_list[0] == content_double_list[position][0]
                 if sentence_list[0] > content_double_list[position][0]:
                     position += 1
+                    if position == content_double_list_len:
+                        content_double_list.append(sentence_list)
+                        break
+                    else:
+                        pass
                 elif sentence_list[0] == content_double_list[position][0]:
-                    content_double_list[position][0][1] = sentence_list[1]
+                    content_double_list[position][1] = sentence_list[1]
                     break
                 else:
                     content_double_list.insert(position, sentence_list)
@@ -81,7 +88,7 @@ def savezh(request):
             json_dict = {
                 'content':content_double_list
             }
-            content_json_str = json.dumps(json_dict)
+            content_json_str = json.dumps(json_dict, ensure_ascii = False)
             content_obj.content = content_json_str
             content_obj.update_date_time = datetime.now()
             content_obj.save()
@@ -91,7 +98,7 @@ def savezh(request):
             json_dict = {
                 'content':content_double_list
             }
-            content_json_str = json.dumps(json_dict)
+            content_json_str = json.dumps(json_dict, ensure_ascii = False)
             content_obj = Content()
             content_obj.page_url = page_url
             content_obj.content = content_json_str
