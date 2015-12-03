@@ -103,15 +103,58 @@ window.onload=function(){
 					connect(p,fragment);
 				}
 			}
+		//子文本节点查找
+			function find(a){
+				if(!a.children().text()){
+					return a;
+				}
+				else{
+					return find(a.children());
+				}
+			}
+		//带有a元素的html格式转换为翻译格式
+			function htmlToTrans(a){
+				var as=a.children("a");
+				if(as.text()){
+					var oHtml=a.html();
+					as.each(function(){
+						$(this).prop("outerHTML","<a>"+$(this).text()+"</a>");
+					});
+					var b=a.html();
+					a.html(oHtml);
+					return b;
+					//var str=that.html().replace(/<a.*>([^>]+[^<]+)(<[^a]|[^\/]a|[^\/][^a])*<\/a>/g,"<a>$1</a>");
+				}
+			}
+		//带有a元素的翻译转换为html格式
+			function transToHtml(a,b){
+				var ele=$("<div></div>");
+				ele.html(a);
+				if(ele.contents("a").text()){
+					var n=ele.contents("a").length;
+					for(var i=0;i<n;i++){
+						var tar=find(b.children("a").eq(i));
+						tar.text(ele.contents("a").eq(i).text());
+						ele.contents("a").eq(i).prop("outerHTML",b.contents("a").eq(i).prop("outerHTML"));
+					}
+					b.html(ele.html());
+				}
+				else{
+					b.text(a);
+				}
+			}
 	//把table数据覆盖进页面
 		var interval=setInterval(function(){
 			if(table){
 				clearInterval(interval);
+				var font_id=0,that;
 				for(var i=0;i<table.length;i++){
-					var font_id=table[i][0];
-					table[i][2]=$("font#"+font_id).text();
-					$("font#"+font_id).text(table[i][1]);
-					$("font#"+font_id).addClass("ripe");
+					font_id=table[i][0];
+					that=$("font#"+font_id);
+					table[i][2]=that.html();
+					table[i][3]=that.text();
+					transToHtml(table[i][1],that);
+					that.addClass("ripe");
 				}
 			}
 		},1000);
@@ -143,54 +186,10 @@ window.onload=function(){
 		$(".trans-box").css("fontFamily","微软雅黑");
 		$(".trans-box .en").css("fontFamily","Arial");
 		$(".trans-box .zh").css("outline","none");
-		$()
-		$("body").on("click",".trans-box",function(e){
-			e.stopPropagation();
-		});
-		$("body").on("click",function(e){
-			$(".trans-box").hide();
-			status=false;
-		});
-		$(".trans-box .zh").focus(function(){
-			if(flag){
-				if($(this).text()=="尚未翻译..."){
-					$(this).text("");
-				}
-			}
-			$(".trans-box .hint,.trans-box .warn").hide();
-			$(this).css("boxShadow","0 0 10px 1px #39e639");
-		});
-		$(".trans-box .zh").blur(function(){
-			if(flag){
-				if($(this).text()==""){
-					$(this).text("尚未翻译...");
-				}
-			}
-			$(this).css("boxShadow","none");
-		});
-	//窗口自带事件
-		var status=false;//status表示悬浮窗的状态
-		$("body").on("click",".trans-box .launch",function(){
-			$(".trans-box .launch").hide();
-			$(".trans-box .box").show();
-			status=true;
-		});
-		$("body").on("mousedown",".trans-box .post",function(){
-			$(this).css({"background":"#313131","color":"#f2f2f2"});
-		});
-		$("body").on("mouseup",".trans-box .post",function(){
-			$(this).css({"background":"#262626","color":"white"});
-		});
-		$(".trans-box .zh")[0].onpaste=function(e){
-			e.preventDefault();
-			var text=e.clipboardData.getData("text/plain");
-			if(text){
-				document.execCommand("insertText",false,text);
-			}
-		};
+		$("head").append("<style>.trans-box .en tt{color:#46cdcf;}.trans-box .en a tt{color:#ffc757}.trans-box .en a tt:hover{color:#ffe761}</style>");
 	//显示原文（翻译）事件
 		var time,that;
-		var id,en,zh;
+		var id,zh,en,en_text;
 		var flag;
 		$("html").on("mouseenter","font",function(e){
 			if(status){
@@ -221,12 +220,14 @@ window.onload=function(){
 					for(var i=0;i<table.length;i++){
 						if(table[i][0]==id){
 							en=table[i][2];
+							en_text=table[i][3];
 							break;
 						}
 					}
 				}
 				else{
-					en=that.text().replace(/\n/g," ");
+					en=that.html();
+					en_text=that.text();
 				}
 				zh="尚未翻译...";
 				var i;
@@ -240,9 +241,10 @@ window.onload=function(){
 					}
 				}
 				else{
+					zh=htmlToTrans(that);
 					flag=true;
 				}
-				$(".trans-box .en").text(en);
+				$(".trans-box .en").html(en);
 				$(".trans-box .zh").text(zh);
 				$(".trans-box .hint").hide();
 				$(".trans-box .warn").hide();
@@ -271,6 +273,52 @@ window.onload=function(){
 				$(".trans-box").hide();
 			}
 		});
+	//窗口自带事件
+		$("body").on("click",".trans-box",function(e){
+			e.stopPropagation();
+		});
+		$("body").on("click",function(e){
+			if(status){
+				$(".trans-box").hide();
+				status=false;
+			}
+		});
+		$(".trans-box .zh").focus(function(){
+			if(flag){
+				if($(this).text()=="尚未翻译..."){
+					$(this).text("");
+				}
+			}
+			$(".trans-box .hint,.trans-box .warn").hide();
+			$(this).css("boxShadow","0 0 10px 1px #39e639");
+		});
+		$(".trans-box .zh").blur(function(){
+			if(flag){
+				if($(this).text()==""){
+					$(this).text("尚未翻译...");
+				}
+			}
+			$(this).css("boxShadow","none");
+		});
+		var status=false;//status表示悬浮窗的状态
+		$("body").on("click",".trans-box .launch",function(){
+			$(".trans-box .launch").hide();
+			$(".trans-box .box").show();
+			status=true;
+		});
+		$("body").on("mousedown",".trans-box .post",function(){
+			$(this).css({"background":"#313131","color":"#f2f2f2"});
+		});
+		$("body").on("mouseup",".trans-box .post",function(){
+			$(this).css({"background":"#262626","color":"white"});
+		});
+		$(".trans-box .zh")[0].onpaste=function(e){
+			e.preventDefault();
+			var text=e.clipboardData.getData("text/plain");
+			if(text){
+				document.execCommand("insertText",false,text);
+			}
+		};
 	//post翻译后的翻译
 		$("body").on("click",".trans-box .post",function(){
 			zh=$(".trans-box .zh").text();
@@ -279,7 +327,7 @@ window.onload=function(){
 				url:"/savezh",
 				type:"post",
 				//headers:{"X-CSRFToken":"1"},
-				data:{id:id,en:en,zh:zh},
+				data:{id:id,en:htmlToTrans($("<div>"+en+"</div>")),zh:zh},
 				success:function(data){
 					if(data.state){
 						$(".trans-box .warn").hide();
@@ -289,15 +337,15 @@ window.onload=function(){
 							for(i=0;i<table.length;i++){
 								if(table[i][0]==id){
 									table[i][1]=zh;
-									f.text(zh);
+									transToHtml(zh,f);
 									break;
 								}
 							}
 						}
 						else{
 							f.addClass("ripe");
-							f.text(zh);
-							table.push([id,zh,en]);
+							transToHtml(zh,f);
+							table.push([id,zh,en,en_text]);
 						}
 						flag=false;
 					}
