@@ -72,16 +72,19 @@ def savezh(request):
             while (True):
                 if sentence_list[0] > content_double_list[position][0]:
                     position += 1
+                elif sentence_list[0] == content_double_list[position][0]:
+                    content_double_list[position][0][1] = sentence_list[1]
+                    break
                 else:
                     content_double_list.insert(position, sentence_list)
-                    json_dict = {
-                        'content':content_double_list
-                    }
-                    content_json_str = json.dumps(json_dict)
-                    content_obj.content = content_json_str
-                    content_obj.update_date_time = datetime.now()
-                    content_obj.save()
                     break
+            json_dict = {
+                'content':content_double_list
+            }
+            content_json_str = json.dumps(json_dict)
+            content_obj.content = content_json_str
+            content_obj.update_date_time = datetime.now()
+            content_obj.save()
         except Content.DoesNotExist:
             content_double_list = []
             content_double_list.append(sentence_list)
