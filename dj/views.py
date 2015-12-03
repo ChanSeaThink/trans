@@ -36,11 +36,11 @@ def getzh(request):
         'content':content_data
     }
     json_obj = json.dumps(json_dict, ensure_ascii = False)
+    print json_obj
     return HttpResponse(json_obj, content_type="application/json")
 
 
 def savezh(request):
-    print request.POST
     page_all_url = request.META['HTTP_REFERER']
     page_url_without_http = page_all_url[page_all_url.find(r'//') + 2:]
     page_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
@@ -48,7 +48,7 @@ def savezh(request):
     sentence_in_page_id = request.POST.get('id', '')
     zh_sentence = request.POST.get('zh', '')
     en_sentence = request.POST.get('en', '')
-    print 'here'
+
     return_state = False
 
     if sentence_in_page_id != '' and zh_sentence != '' and en_sentence != '':
