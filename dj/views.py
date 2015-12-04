@@ -13,7 +13,12 @@ def index(request):
 def getzh(request):
     page_all_url = request.META['HTTP_REFERER']
     page_url_without_http = page_all_url[page_all_url.find(r'//') + 2:]
-    page_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
+    page_url_without_root_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
+    page_url = ''
+    if page_url_without_root_url.find('?') == -1:
+        page_url = page_url_without_root_url
+    else:
+        page_url = page_url_without_root_url[:page_url_without_root_url.find('?')]
     #print page_url
 
     content = ''
@@ -43,7 +48,12 @@ def getzh(request):
 def savezh(request):
     page_all_url = request.META['HTTP_REFERER']
     page_url_without_http = page_all_url[page_all_url.find(r'//') + 2:]
-    page_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
+    page_url_without_root_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
+    page_url = ''
+    if page_url_without_root_url.find('?') == -1:
+        page_url = page_url_without_root_url
+    else:
+        page_url = page_url_without_root_url[:page_url_without_root_url.find('?')]
 
     sentence_in_page_id = request.POST.get('id', '')
     zh_sentence = request.POST.get('zh', '')
