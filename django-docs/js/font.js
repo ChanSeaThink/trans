@@ -113,6 +113,7 @@ window.onload=function(){
 				}
 			}
 		//带有a元素的html格式转换为翻译格式
+			var state=true;
 			function htmlToTrans(a){
 				var as=a.children("a");
 				if(as.text()){
@@ -122,8 +123,13 @@ window.onload=function(){
 					});
 					var b=a.html();
 					a.html(oHtml);
+					state=true;
 					return b;
 					//var str=that.html().replace(/<a.*>([^>]+[^<]+)(<[^a]|[^\/]a|[^\/][^a])*<\/a>/g,"<a>$1</a>");
+				}
+				else{
+					state=false;
+					return a.text()
 				}
 			}
 		//带有a元素的翻译转换为html格式
@@ -229,7 +235,6 @@ window.onload=function(){
 					en=that.html();
 					en_text=that.text();
 				}
-				zh="尚未翻译...";
 				var i;
 				if(that.hasClass("ripe")){
 					for(i=0;i<table.length;i++){
@@ -241,6 +246,10 @@ window.onload=function(){
 					}
 				}
 				else{
+					zh=htmlToTrans(that);
+					if(!state){
+						zh="尚未翻译...";
+					}
 					flag=true;
 				}
 				$(".trans-box .en").html(en);
