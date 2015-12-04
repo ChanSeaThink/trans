@@ -283,13 +283,22 @@ window.onload=function(){
 			}
 		});
 	//窗口自带事件
-		$("body").on("click",".trans-box",function(e){
+		var clickFlag=true;
+		$("body").on("click",".trans-box,.gtx-bubble",function(e){
 			e.stopPropagation();
 		});
-		$("body").on("click",function(e){
-			if(status){
-				$(".trans-box").hide();
-				status=false;
+		$("body").on("mousedown","#gtx-trans",function(){
+			clickFlag=false;
+		});
+		$("body").on("click",function(e){console.log(clickFlag);
+			if(clickFlag){
+				if(status){
+					$(".trans-box").hide();
+					status=false;
+				}
+			}
+			else{
+				clickFlag=true;
 			}
 		});
 		$(".trans-box .zh").focus(function(){
