@@ -5,6 +5,7 @@ window.onload=function(){
 			url:"/getzh",
 			type:"get",
 			data:null,
+			cache:false,
 			success:function(data){
 				if(data.content){
 					table=data.content;
