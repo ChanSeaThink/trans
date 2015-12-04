@@ -241,7 +241,6 @@ window.onload=function(){
 					}
 				}
 				else{
-					zh=htmlToTrans(that);
 					flag=true;
 				}
 				$(".trans-box .en").html(en);
