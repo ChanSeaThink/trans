@@ -28,7 +28,7 @@ DEBUG = True
 if DEBUG:
     ALLOWED_HOSTS = []
 else:
-    ALLOWED_HOSTS = ['itconf.cn', 'www.itconf.cn']
+    ALLOWED_HOSTS = ['dj.itconf.cn',]
 
 # Application definition
 
