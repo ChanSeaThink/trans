@@ -117,11 +117,19 @@ window.onload=function(){
 			var state=true;
 			function htmlToTrans(a){
 				var as=a.children("a");
-				if(as.text()){
+				var tts=a.children("tt");
+				if(as.text()||tts.text()){
 					var oHtml=a.html();
-					as.each(function(){
-						$(this).prop("outerHTML","<a>"+$(this).text()+"</a>");
-					});
+					if(as.text()){
+						as.each(function(){
+							$(this).prop("outerHTML","<a>"+$(this).text()+"</a>");
+						});
+					}
+					if(tts.text()){
+						tts.each(function(){
+							$(this).prop("outerHTML","<tt>"+$(this).text()+"</tt>");
+						});
+					}
 					var b=a.html();
 					a.html(oHtml);
 					state=true;
@@ -137,12 +145,17 @@ window.onload=function(){
 			function transToHtml(a,b){
 				var ele=$("<div></div>");
 				ele.html(a);
-				if(ele.contents("a").text()){
-					var n=ele.contents("a").length;
-					for(var i=0;i<n;i++){
-						var tar=find(b.children("a").eq(i));
-						tar.text(ele.contents("a").eq(i).text());
-						ele.contents("a").eq(i).prop("outerHTML",b.contents("a").eq(i).prop("outerHTML"));
+				if(ele.children("a").text()||ele.children("tt").text()){
+					if(ele.children("a").text()){
+						var n=ele.children("a").length;
+						for(var i=0;i<n;i++){
+							var tar=find(b.children("a").eq(i));
+							tar.text(ele.children("a").eq(i).text());
+							ele.children("a").eq(i).prop("outerHTML",b.children("a").eq(i).prop("outerHTML"));
+						}
+					}
+					if(ele.children("tt").text()){
+						ele.children("tt").contents().wrap("<span class='pre'>")
 					}
 					b.html(ele.html());
 				}
