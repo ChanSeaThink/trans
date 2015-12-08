@@ -17,7 +17,7 @@ window.onload=function(){
 		});
 	//给全文添加font标签
 		$("*").not("script").each(function(){
-			if($(this).parents("pre").text()){
+			if($(this).is("pre")||$(this).parents("pre").text()){
 				return;
 			}
 			$(this).contents().filter(function(){return this.nodeType == 3;}).each(function(){
@@ -115,6 +115,7 @@ window.onload=function(){
 			}
 		//带有a元素的html格式转换为翻译格式
 			var state=true;
+			var origin="";
 			function htmlToTrans(a){
 				var as=a.children("a");
 				var tts=a.children("tt");
@@ -122,23 +123,27 @@ window.onload=function(){
 					var oHtml=a.html();
 					if(as.text()){
 						as.each(function(){
-							$(this).prop("outerHTML","<a>"+$(this).text()+"</a>");
+							var format=$(this).text().replace(/>/g,"&gt;").replace(/</g,"&lt;");
+							$(this).prop("outerHTML","<a>"+format+"</a>");
 						});
 					}
 					if(tts.text()){
 						tts.each(function(){
-							$(this).prop("outerHTML","<tt>"+$(this).text()+"</tt>");
+							var format=$(this).text().replace(/>/g,"&gt;").replace(/</g,"&lt;");
+							$(this).prop("outerHTML","<tt>"+format+"</tt>");
 						});
 					}
-					var b=a.html();
+					origin=a.html();
+					var b=origin.replace(/&gt;/g,">").replace(/&lt;/g,"<");
 					a.html(oHtml);
 					state=true;
 					return b;
 					//var str=that.html().replace(/<a.*>([^>]+[^<]+)(<[^a]|[^\/]a|[^\/][^a])*<\/a>/g,"<a>$1</a>");
 				}
 				else{
+					origin=a.text().replace(/>/g,"&gt;").replace(/</g,"&lt;");
 					state=false;
-					return a.text()
+					return a.text();
 				}
 			}
 		//带有a元素的翻译转换为html格式
@@ -150,18 +155,35 @@ window.onload=function(){
 						var n=ele.children("a").length;
 						for(var i=0;i<n;i++){
 							var tar=find(b.children("a").eq(i));
-							tar.text(ele.children("a").eq(i).text());
+							tar.text(ele.children("a").eq(i).html());
 							ele.children("a").eq(i).prop("outerHTML",b.children("a").eq(i).prop("outerHTML"));
 						}
 					}
 					if(ele.children("tt").text()){
-						ele.children("tt").contents().wrap("<span class='pre'>")
+						var n=ele.children("tt").length;
+						for(var i=0;i<n;i++){
+							var tar=b.children("tt").eq(i);
+							tar.html("<span class='pre'>"+ele.children("tt").eq(i).html()+"</span>");
+							ele.children("tt").eq(i).prop("outerHTML",b.children("tt").eq(i).prop("outerHTML"));
+						}
 					}
 					b.html(ele.html());
 				}
 				else{
 					b.text(a);
 				}
+			}
+		//把原始格式替换进翻译好的句子中
+			function formatZh(a,b){
+				var arr=a.match(/(<)|(>)|(&lt;)|(&gt;)/g);
+				var arr2=[],arr_count=0,i=0;
+				while(b.charAt(i)){
+					if(b.charAt(i).match(/[<>]/)){
+						b=b.slice(0,i)+arr[arr_count++]+b.slice(i+1);
+					}
+					i++;
+				}
+				return b;
 			}
 	//把table数据覆盖进页面
 		var interval=setInterval(function(){
@@ -249,11 +271,11 @@ window.onload=function(){
 					en=that.html();
 					en_text=that.text();
 				}
-				var i;
 				if(that.hasClass("ripe")){
-					for(i=0;i<table.length;i++){
+					for(var i=0;i<table.length;i++){
 						if(table[i][0]==id){
-							zh=table[i][1];
+							origin=table[i][1];
+							zh=origin.replace(/&gt;/g,">").replace(/&lt;/g,"<");
 							flag=false;
 							break;
 						}
@@ -353,7 +375,7 @@ window.onload=function(){
 	//post翻译后的翻译
 		$("body").on("click",".trans-box .post",function(){
 			zh=$(".trans-box .zh").text();
-			zh=zh=="尚未翻译..."?"":zh;
+			zh=zh=="尚未翻译..."?"":formatZh(origin,zh);
 			$.ajax({
 				url:"/savezh",
 				type:"post",
