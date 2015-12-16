@@ -16,41 +16,53 @@ window.onload=function(){
 			}
 		});
 	//给全文添加font标签
-		$("*").not("script").each(function(){
-			if($(this).is("pre")||$(this).parents("pre").text()){
-				return;
+		//所有文本添加font标签
+			$("*").not("script").each(function(){
+				if($(this).is("pre")||$(this).parents("pre").text()){
+					return;
+				}
+				$(this).contents().filter(function(){return this.nodeType == 3;}).each(function(){
+					if($(this).text().replace(/\s+/,"")){
+						$(this).wrap("<font/>");
+					}
+				});
+			});
+		//段落分句
+			$("font").each(function(){
+				var html=$(this).prop("outerHTML").replace(/(\.|\?|\!)(\s)/g,"$1"+"</font><font class='stc a'>"+"$2");
+				$(this).prop("outerHTML",html);
+			});
+		//找出句尾
+			var os=$("body font").filter(function(){return $(this).text().match(/(\.|\?|\!|\:)$/)});
+			var n=os.length;
+		//从句尾开始往前连接词组
+			for(var i=0;i<n;i++){
+				if(os.eq(i).parent().is("script")){
+					continue;
+				}
+				else if(os.eq(i).hasClass("stc")){
+					continue;
+				}
+				var fragment="";
+				connect(os.eq(i),fragment);
 			}
-			$(this).contents().filter(function(){return this.nodeType == 3;}).each(function(){
-				if($(this).text().replace(/\s+/,"")){
-					$(this).wrap("<font/>");
+		//li元素合并成一句
+			$("li").each(function(){
+				if($(this).text().match(/[\x7c?.!]/)){
+					console.log($(this).text().match("|"));
+					return;
+				}
+				var li=$(this).contents().not("ul");
+				li=li.filter(function(){return !exist($(this),"pre")});
+				var len=li.length;
+				connect(li.eq(len-1),"");
+			});
+		//删除只有特殊字符的句子
+			$("body font").each(function(){
+				if($(this).text().match(/[a-zA-Z]/)==null){
+					$(this).contents().unwrap();
 				}
 			});
-		});
-		//段落分句
-		$("font").each(function(){
-			var html=$(this).prop("outerHTML").replace(/(\.|\?|\!)(\s)/g,"$1"+"</font><font class='stc a'>"+"$2");
-			$(this).prop("outerHTML",html);
-		});
-		//找出句尾
-		var os=$("body font").filter(function(){return $(this).text().match(/(\.|\?|\!|\:)$/)});
-		var n=os.length;
-		//从句尾开始往前连接词组
-		for(var i=0;i<n;i++){
-			if(os.eq(i).parent().is("script")){
-				continue;
-			}
-			else if(os.eq(i).hasClass("stc")){
-				continue;
-			}
-			var fragment="";
-			connect(os.eq(i),fragment);
-		}
-		//删除只有特殊字符的句子
-		$("body font").each(function(){
-			if($(this).text().match(/[a-zA-Z]/)==null){
-				$(this).contents().unwrap();
-			}
-		});
 		//排序
 			var count=0;
 			$("body font").each(function(){
@@ -58,6 +70,21 @@ window.onload=function(){
 				$(this).attr("id",count++);
 			});
 	//函数
+		//遍历是否存在某个指定元素
+			function exist(a,b){
+				if(a.children(b).text()){
+					return true;
+				}
+				else{
+					var len=a.children().length;
+					for(var i=0;i<len;i++){
+						if(exist(a.children().eq(i),b)){
+							return true;
+						}
+					}
+				}
+				return false;
+			}
 		//消除独立font
 			function unFont(o){
 				if(o.is("font")){
@@ -113,27 +140,54 @@ window.onload=function(){
 					return find(a.children());
 				}
 			}
+		//a,tt以外元素剥离
+			function eleFilter(a){
+				if(!a.children().text()){
+					return;
+				}
+				a.children().not("a,tt,em").each(function(){
+					$(this).prop("outerHTML",$(this).html());
+				});
+				a.children("a").each(function(){
+					eleFilter($(this));
+					$(this).prop("outerHTML","<a>"+$(this).html()+"</a>");
+				});
+				a.children("tt").each(function(){
+					eleFilter($(this));
+					$(this).prop("outerHTML","<tt>"+$(this).html()+"</tt>");
+				});
+				a.children("em").each(function(){
+					eleFilter($(this));
+					$(this).prop("outerHTML","<em>"+$(this).html()+"</em>");
+				});
+			}
+		//文本节点递归操作
+			function recursionText(a){
+				var textnode=a.contents().filter(function(){return this.nodeType==3});
+				var elenode=a.contents().filter(function(){return this.nodeType==1});
+				if(textnode.length){
+					textnode.each(function(){
+						this.nodeValue=this.nodeValue.replace(/>/g,"&gt;").replace(/</g,"&lt;");
+					});
+				}
+				if(elenode.length){
+					elenode.each(function(){
+						recursionText($(this));
+					});
+				}
+				else{
+					return;
+				}
+			}
 		//带有a元素的html格式转换为翻译格式
 			var state=true;
 			var origin="";
 			function htmlToTrans(a){
-				var as=a.children("a");
-				var tts=a.children("tt");
-				if(as.text()||tts.text()){
+				if(a.children("a,tt,em").text()){
 					var oHtml=a.html();
-					if(as.text()){
-						as.each(function(){
-							var format=$(this).text().replace(/>/g,"&gt;").replace(/</g,"&lt;");
-							$(this).prop("outerHTML","<a>"+format+"</a>");
-						});
-					}
-					if(tts.text()){
-						tts.each(function(){
-							var format=$(this).text().replace(/>/g,"&gt;").replace(/</g,"&lt;");
-							$(this).prop("outerHTML","<tt>"+format+"</tt>");
-						});
-					}
-					origin=a.html();
+					eleFilter(a);
+					recursionText(a);
+					origin=a.html().replace(/&amp;gt;/g,"&gt;").replace(/&amp;lt;/g,"&lt;");
 					var b=origin.replace(/&gt;/g,">").replace(/&lt;/g,"<");
 					a.html(oHtml);
 					state=true;
@@ -150,21 +204,44 @@ window.onload=function(){
 			function transToHtml(a,b){
 				var ele=$("<div></div>");
 				ele.html(a);
-				if(ele.children("a").text()||ele.children("tt").text()){
-					if(ele.children("a").text()){
+				if(ele.children("a,tt,em").text()){
+					if(b.children("a").text()){
 						var n=ele.children("a").length;
 						for(var i=0;i<n;i++){
-							var tar=find(b.children("a").eq(i));
-							tar.text(ele.children("a").eq(i).html());
-							ele.children("a").eq(i).prop("outerHTML",b.children("a").eq(i).prop("outerHTML"));
+							var target1=b.children("a").eq(i);
+							var target2=ele.children("a").eq(i);
+							var tag=target1.prop("outerHTML").replace(target1.html(),"");
+							target2.wrap(tag).contents(0).unwrap();
+							target2=ele.children("a").eq(i);
+							if(target2.children("a,tt,em").text()){
+								target2.html(transToHtml(target2.html(),target1));
+							}
 						}
 					}
 					if(ele.children("tt").text()){
 						var n=ele.children("tt").length;
 						for(var i=0;i<n;i++){
-							var tar=b.children("tt").eq(i);
-							tar.html("<span class='pre'>"+ele.children("tt").eq(i).html()+"</span>");
-							ele.children("tt").eq(i).prop("outerHTML",b.children("tt").eq(i).prop("outerHTML"));
+							var target1=b.children("tt").eq(i);
+							var target2=ele.children("tt").eq(i);
+							var tag=target1.prop("outerHTML").replace(target1.html(),"");
+							target2.wrap(tag).contents(0).unwrap();
+							target2=ele.children("tt").eq(i);
+							if(target2.children("a,tt,em").text()){
+								target2.html(transToHtml(target2.html(),target1));
+							}
+						}
+					}
+					if(ele.children("em").text()){
+						var n=ele.children("em").length;
+						for(var i=0;i<n;i++){
+							var target1=b.children("em").eq(i);
+							var target2=ele.children("em").eq(i);
+							var tag=target1.prop("outerHTML").replace(target1.html(),"");
+							target2.wrap(tag).contents(0).unwrap();
+							target2=ele.children("em").eq(i);
+							if(target2.children("a,tt,em").text()){
+								target2.html(transToHtml(target2.html(),target1));
+							}
 						}
 					}
 					b.html(ele.html());
@@ -172,6 +249,7 @@ window.onload=function(){
 				else{
 					b.text(a);
 				}
+				return ele.html();
 			}
 		//把原始格式替换进翻译好的句子中
 			function formatZh(a,b){
@@ -228,7 +306,7 @@ window.onload=function(){
 		$(".trans-box").css("fontFamily","微软雅黑");
 		$(".trans-box .en").css("fontFamily","Arial");
 		$(".trans-box .zh").css("outline","none");
-		$("head").append("<style>.trans-box .en tt{color:#46cdcf;}.trans-box .en a tt{color:#ffc757}.trans-box .en a tt:hover{color:#ffe761}</style>");
+		$("head").append("<style>.trans-box .en tt{color:#46cdcf;}</style>");
 	//显示原文（翻译）事件
 		var time,that;
 		var id,zh,en,en_text;
