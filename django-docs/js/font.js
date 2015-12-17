@@ -48,12 +48,11 @@ window.onload=function(){
 			}
 		//li元素合并成一句
 			$("li").each(function(){
-				if($(this).text().match(/[\x7c?.!]/)){
-					console.log($(this).text().match("|"));
-					return;
-				}
 				var li=$(this).contents().not("ul");
 				li=li.filter(function(){return !exist($(this),"pre")});
+				if(li.text().match(/[^.][\x7c!?.]\s/)){
+					return;
+				}
 				var len=li.length;
 				connect(li.eq(len-1),"");
 			});
