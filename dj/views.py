@@ -46,6 +46,16 @@ def getzh(request):
 
 
 def savezh(request):
+    permission = request.user.is_authenticated()
+    if permission:
+        pass
+    else:
+        json_dict = {
+        'state':False
+        }
+        json_obj = json.dumps(json_dict, ensure_ascii = False)
+        return HttpResponse(json_obj, content_type="application/json")
+
     page_all_url = request.META['HTTP_REFERER']
     page_url_without_http = page_all_url[page_all_url.find(r'//') + 2:]
     page_url_without_root_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
