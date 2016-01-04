@@ -15,6 +15,20 @@ window.onload=function(){
 				console.log(arguments);
 			}
 		});
+	//白名单
+		var whiteList=[
+			" e.g.",
+			" v.s."
+		];
+		var
+			whiteListString1="",
+			whiteListString2="";
+		for(var i=0;i<whiteList.length;i++){
+			whiteListString1+=whiteList[i]+"\|";
+			whiteListString2+="<"+whiteList[i]+">"+"\|";
+		}
+		whiteListString1=whiteListString1.slice(0,-1);
+		whiteListString2=whiteListString2.slice(0,-1);
 	//给全文添加font标签
 		//所有文本添加font标签
 			$("*").not("script").each(function(){
@@ -29,7 +43,16 @@ window.onload=function(){
 			});
 		//段落分句
 			$("font").each(function(){
-				var html=$(this).prop("outerHTML").replace(/(\.|\?|\!)(\s)/g,"$1"+"</font><font class='stc a'>"+"$2");
+				var html=$(this).prop("outerHTML");
+				if(html.match(whiteListString1)){
+					var pattern=new RegExp(whiteListString1,"gi");
+					html=html.replace(pattern,"<$&>");
+				}
+				html=html.replace(/(\.|\?|\!)(\s)/g,"$1"+"</font><font class='stc a'>"+"$2");
+				for(var i=0;i<whiteList.length;i++){
+					var pattern=new RegExp("<\("+whiteList[i]+"\)>","gi");
+					html=html.replace(pattern,"$1");
+				}
 				$(this).prop("outerHTML",html);
 			});
 		//找出句尾
