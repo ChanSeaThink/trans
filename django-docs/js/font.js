@@ -46,11 +46,22 @@ window.onload=function(){
 				var fragment="";
 				connect(os.eq(i),fragment);
 			}
+		//删除只有特殊字符的句子
+			$("body font").each(function(){
+				if($(this).text().match(/[a-zA-Z]/)==null){
+					$(this).contents().unwrap();
+				}
+			});
 		//h标题元素合并成一句
 			$(":header").each(function(){
 				var h=$(this).contents();
 				var len=h.length;
-				connect(h.eq(len-1),"");
+				if(h.eq(len-1).is("font")||exist(h.eq(len-1),"font")){
+					connect(h.eq(len-1),"");
+				}
+				else{
+					connect(h.eq(len-2),"");
+				}
 			});
 		//li元素合并成一句
 			$("li").each(function(){
@@ -61,12 +72,6 @@ window.onload=function(){
 				}
 				var len=li.length;
 				connect(li.eq(len-1),"");
-			});
-		//删除只有特殊字符的句子
-			$("body font").each(function(){
-				if($(this).text().match(/[a-zA-Z]/)==null){
-					$(this).contents().unwrap();
-				}
 			});
 		//排序
 			var count=0;
