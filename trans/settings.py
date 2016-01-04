@@ -105,3 +105,4 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DOC_ROOT = os.path.join(BASE_DIR, 'django-docs')
+#DOC_ROOT_PY = os.path.join(BASE_DIR, 'python-docs')

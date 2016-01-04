@@ -20,8 +20,10 @@ from django.conf import settings
 urlpatterns = [
     url(r'^superadmin/', include(admin.site.urls)),
     url(r'^django-docs/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DOC_ROOT}),
+    #url(r'^python-docs/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DOC_ROOT_PY}),
 
     url(r'^$', 'dj.views.index'),
+    url(r'^py$', 'dj.views.py'),
     url(r'^getzh$', 'dj.views.getzh'),
     url(r'^savezh$', 'dj.views.savezh'),
 ]

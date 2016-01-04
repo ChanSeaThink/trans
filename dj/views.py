@@ -8,8 +8,13 @@ import json
 # Create your views here.
 def index(request):
     return HttpResponseRedirect('django-docs/index.html')
+'''
+def dj(request):
+    return HttpResponseRedirect('django-docs/index.html')
 
-
+def py(request):
+    return HttpResponseRedirect('python-docs/index.html')
+'''
 def getzh(request):
     page_all_url = request.META['HTTP_REFERER']
     page_url_without_http = page_all_url[page_all_url.find(r'//') + 2:]
