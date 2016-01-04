@@ -46,6 +46,12 @@ window.onload=function(){
 				var fragment="";
 				connect(os.eq(i),fragment);
 			}
+		//h标题元素合并成一句
+			$(":header").each(function(){
+				var h=$(this).contents();
+				var len=h.length;
+				connect(h.eq(len-1),"");
+			});
 		//li元素合并成一句
 			$("li").each(function(){
 				var li=$(this).contents().not("ul");
