@@ -96,6 +96,26 @@ window.onload=function(){
 					connect(h.eq(len-2),"");
 				}
 			});
+		//p元素合并成一句
+			$("p").each(function(){
+				if($(this).parents("font.stc").text()||exist($(this),"font.stc")){
+					return;
+				}
+				unFont($(this));
+				var html="<font class='stc'>"+$(this).html()+"</font>";
+				$(this).html(html);
+			});
+		//断句往后和class为非stc的font元素合并
+			$("font.stc").each(function(){
+				var lastFont=$(this),lfflag=false;
+				while(exist(lastFont.next(),"font")&&!lastFont.next().hasClass("stc")&&!lastFont.next().find("font").hasClass("stc")){
+					lastFont=$(this).next();
+					lfflag=true;
+				}
+				if(lfflag){
+					connect(lastFont,"");
+				}
+			});
 		//排序
 			var count=0;
 			$("body font").each(function(){
@@ -136,10 +156,10 @@ window.onload=function(){
 				var p=o.prev();
 				if(!p.text()){
 					if(o.is("font")){
-						o.append(fragment);
+						o.addClass("stc").append(fragment);
 					}
 					else{
-						o.before("<font src='stc'></font>");
+						o.before("<font class='stc'></font>");
 						unFont(o);
 						fragment=o.prop("outerHTML")+fragment;
 						o.prev().append(fragment);
@@ -436,7 +456,7 @@ window.onload=function(){
 		$("body").on("mousedown","#gtx-trans",function(){
 			clickFlag=false;
 		});
-		$("body").on("click",function(e){console.log(clickFlag);
+		$("body").on("click",function(e){
 			if(clickFlag){
 				if(status){
 					$(".trans-box").hide();
