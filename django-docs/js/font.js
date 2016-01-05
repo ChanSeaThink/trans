@@ -18,7 +18,7 @@ window.onload=function(){
 	//白名单
 		var whiteList=[
 			" e.g.",
-			" v.s."
+			" vs."
 		];
 		var
 			whiteListString1="",
