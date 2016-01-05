@@ -73,7 +73,12 @@ window.onload=function(){
 			$("li").each(function(){
 				var li=$(this).contents().not("ul");
 				li=li.filter(function(){return !exist($(this),"pre")});
-				if(li.text().match(/[^.][\x7c!?.]\s/)){
+				var html=li.text();
+				if(html.match(whiteListString1)){
+					var pattern=new RegExp(whiteListString1,"gi");
+					html=html.replace(pattern,"<$&>");
+				}
+				if(html.match(/[^.][\x7c!?.]\s/)){
 					return;
 				}
 				var len=li.length;
