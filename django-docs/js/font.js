@@ -360,22 +360,26 @@ window.onload=function(){
 		var style12="display:inline-block;margin-top-5px;text-indent:5px;cursor:pointer;";
 		var style2="display:none;";
 		var style21="padding:5px;max-height:200px;color:#515151;background:white;overflow-y:auto;";
-		var style22="display:inline-block;margin-left:165px;margin-top:15px;width:80px;height:25px;line-height:25px;text-align:center;color:white;background:#262626;cursor:pointer;";
+		var style22="display:inline-block;margin-left:113px;margin-top:15px;width:80px;height:25px;line-height:25px;text-align:center;color:white;background:#262626;cursor:pointer;";
 		var style23="display:none;float:right;color:white;margin-top:15px;margin-right:50px;width:80px;height:25px;line-height:25px;";
 		var style24="display:none;float:right;color:red;margin-top:15px;margin-right:50px;width:80px;height:25px;line-height:25px;";
+		var style25="display:none;float:left;margin-top:15px;margin-left:0px;height:25px;line-height:25px;text-indent:4px;cursor:pointer;";
+		var style26="display:none;float:left;margin-top:15px;margin-left:0px;height:25px;line-height:25px;text-indent:4px;cursor:pointer;";
 		$("body").append("<div class='trans-box' style='"+style1+
-			"''><div style='text-indent:5px;'>原文:</div><div class='en' style='"+style11+
+			"''><div class='box-title' style='text-indent:5px;'>原文：</div><div class='en' style='"+style11+
 			"'></div><div class='launch' style='"+style12+
 			"'>翻译</div><div class='box' style='"+style2+
 			"'><div class='zh' style='"+style21+
-			"' contenteditable='true'></div><div class='hint' style='"+style23+
+			"' contenteditable='true'></div><div class='restore1' style='"+style25+
+			"'>显示格式</div><div class='restore2' style='"+style26+
+			"'>显示原文</div><div class='hint' style='"+style23+
 			"'>提交成功！</div><div class='warn' style='"+style24+
 			"'>提交失败！</div><div class='post' style='"+style22+
 			"'>提交</div></div></div>");
 		$(".trans-box").css("fontFamily","微软雅黑");
 		$(".trans-box .en").css("fontFamily","Arial");
 		$(".trans-box .zh").css("outline","none");
-		$("head").append("<style>.trans-box .en tt{color:#46cdcf;}</style>");
+		$("head").append("<style>.trans-box .en tt{color:#46cdcf;} .restore1:hover,.restore2:hover{color:#46cdcf;}</style>");
 	//显示原文（翻译）事件
 		var time,that;
 		var id,zh,en,en_text;
@@ -435,12 +439,22 @@ window.onload=function(){
 					}
 					flag=true;
 				}
+				if(state){
+					$(".trans-box .restore1").show();
+					$(".trans-box .post").css("margin-left","108px");
+				}
+				else{
+					$(".trans-box .restore1").hide();
+					$(".trans-box .post").css("margin-left","160px");
+				}
 				$(".trans-box .en").html(en);
 				$(".trans-box .zh").text(zh);
 				$(".trans-box .hint").hide();
 				$(".trans-box .warn").hide();
 				$(".trans-box .box").hide();
+				$(".trans-box .restore2").hide();
 				$(".trans-box .launch").show();
+				$(".trans-box .box-title").text("原文：");
 				$(".trans-box").css({"left":x,"top":y}).show();
 				status=false;
 			},600);
@@ -519,6 +533,21 @@ window.onload=function(){
 				document.execCommand("insertText",false,text);
 			}
 		};
+		//显示格式和显示原文
+			var enHTML="";
+			$("body").on("click",".trans-box .restore1",function(){
+				enHTML=$(".trans-box .en").html();
+				$(this).toggle();
+				$(this).siblings(".restore2").toggle();
+				$(".trans-box .box-title").text("格式：");
+				$(".trans-box .en").text(htmlToTrans($(".trans-box .en")));
+			});
+			$("body").on("click",".trans-box .restore2",function(){
+				$(this).toggle();
+				$(this).siblings(".restore1").toggle();
+				$(".trans-box .box-title").text("原文：");
+				$(".trans-box .en").html(enHTML);
+			});
 	//post翻译后的翻译
 		$("body").on("click",".trans-box .post",function(){
 			zh=$(".trans-box .zh").text();
