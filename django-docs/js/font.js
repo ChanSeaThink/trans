@@ -439,6 +439,7 @@ window.onload=function(){
 					}
 					flag=true;
 				}
+				htmlToTrans(that);
 				if(state){
 					$(".trans-box .restore1").show();
 					$(".trans-box .post").css("margin-left","108px");
