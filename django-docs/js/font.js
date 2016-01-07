@@ -87,7 +87,7 @@ window.onload=function(){
 			});
 		//删除只有特殊字符的句子
 			$("body font").each(function(){
-				if($(this).text().match(/[a-zA-Z]/)==null){
+				if($(this).text().match(/[a-zA-Z,]/)==null){
 					$(this).contents().unwrap();
 				}
 			});
@@ -103,7 +103,7 @@ window.onload=function(){
 				}
 			});
 		//p元素合并成一句
-			$("p").each(function(){
+			$("p,dl").each(function(){
 				if($(this).parents("font.stc").text()||exist($(this),"font.stc")){
 					return;
 				}
@@ -114,10 +114,20 @@ window.onload=function(){
 		//断句往后和class为非stc的font元素合并
 			$("font.stc").each(function(){
 				var lastFont=$(this),lfflag=false;
-				while(exist(lastFont.next(),"font")&&!lastFont.next().hasClass("stc")&&!lastFont.next().find("font").hasClass("stc")){
-					lastFont=$(this).next();
+				while((lastFont.next().is("font")||exist(lastFont.next(),"font"))&&!lastFont.next().hasClass("stc")&&!lastFont.next().find("font").hasClass("stc")){
+					lastFont=lastFont.next();
 					lfflag=true;
 				}
+				/*while(!lfflag){
+					lastFont=lastFont.parent();
+					if(lastFont.find(".stc").text()||lastFont.next().find(".stc").text()){
+						break;
+					}
+					while((lastFont.next().is("font")||exist(lastFont.next(),"font"))&&!lastFont.next().hasClass("stc")&&!lastFont.next().find("font").hasClass("stc")){
+						lastFont=lastFont.next();
+						lfflag=true;
+					}
+				}*/
 				if(lfflag){
 					connect(lastFont,"");
 				}
