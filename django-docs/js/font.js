@@ -439,7 +439,7 @@ window.onload=function(){
 					}
 					flag=true;
 				}
-				htmlToTrans(that);
+				htmlToTrans($("<div>"+en+"</div>"));
 				if(state){
 					$(".trans-box .restore1").show();
 					$(".trans-box .post").css("margin-left","108px");
