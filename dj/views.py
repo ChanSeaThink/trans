@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from datetime import datetime
 from dj.models import *
 import json
+from sentence import del_html_tab
 
 # Create your views here.
 def index(request):
@@ -140,3 +141,57 @@ def savezh(request):
     }
     json_obj = json.dumps(json_dict, ensure_ascii = False)
     return HttpResponse(json_obj, content_type="application/json")
+
+def sendenst(request):
+    if request.method != 'POST':
+        return HttpResponse('请求方法有误。')
+
+    page_all_url = request.META['HTTP_REFERER']
+    page_url_without_http = page_all_url[page_all_url.find(r'//') + 2:]
+    page_url_without_root_url = page_url_without_http[page_url_without_http.find(r'/') + 1:]
+    page_url = ''
+    if page_url_without_root_url.find('?') == -1:
+        page_url = page_url_without_root_url
+    else:
+        page_url = page_url_without_root_url[:page_url_without_root_url.find('?')]
+
+    try:
+        content_obj = Content.objects.get(page_url = page_url)
+    except Content.DoesNotExist:
+        pass
+
+    new_zh_sentence_with_tab_ls = json.loads(request.body)['content']
+
+    change_fail_sentence_id_ls = json.loads(request.body)['id']
+
+    print change_fail_sentence_id_ls
+
+    json_dict = {
+                'content':new_zh_sentence_with_tab_ls
+            }
+    content_json_str = json.dumps(json_dict, ensure_ascii = False)
+    content_obj.content = content_json_str
+    content_obj.update_date_time = datetime.now()
+    content_obj.save()
+
+    json_dict = {
+        'state':True
+    }
+    json_obj = json.dumps(json_dict, ensure_ascii = False)
+    return HttpResponse(json_obj, content_type="application/json")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

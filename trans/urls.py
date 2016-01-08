@@ -25,4 +25,5 @@ urlpatterns = [
     #url(r'^py$', 'dj.views.py'),
     url(r'^getzh$', 'dj.views.getzh'),
     url(r'^savezh$', 'dj.views.savezh'),
+    url(r'^sendenst$', 'dj.views.sendenst')
 ]
