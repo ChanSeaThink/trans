@@ -438,7 +438,7 @@ window.onload=function(){
 					var formData={
 						content:table2,
 						id:array
-					};console.log(formData)
+					};
 					$.ajax({
 						url:"/sendenst",
 						type:"post",
