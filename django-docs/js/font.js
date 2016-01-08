@@ -58,9 +58,9 @@ window.onload=function(){
 			});
 		//找出句尾
 			var os=$("body font").filter(function(){return $(this).text().match(/(\.|\?|\!|\:)$/)});
-			var n=os.length;
+			var osn=os.length;
 		//从句尾开始往前连接词组
-			for(var i=0;i<n;i++){
+			for(var i=0;i<osn;i++){
 				if(os.eq(i).parent().is("script")){
 					continue;
 				}
@@ -135,7 +135,6 @@ window.onload=function(){
 		//排序
 			var count=0;
 			$("body font").each(function(){
-				//console.log(count++);
 				$(this).attr("id",count++);
 			});
 	//函数
@@ -170,7 +169,7 @@ window.onload=function(){
 		//把独立font连接起来
 			function connect(o,fragment){
 				var p=o.prev();
-				if(!p.text()){
+				if(p.length==0){
 					if(o.is("font")){
 						o.addClass("stc").append(fragment);
 					}
@@ -210,25 +209,53 @@ window.onload=function(){
 				}
 			}
 		//a,tt以外元素剥离
+			var efn=0;
 			function eleFilter(a){
-				if(!a.children().text()){
-					return;
-				}
-				a.children().not("a,tt,em").each(function(){
-					$(this).prop("outerHTML",$(this).html());
-				});
-				a.children("a").each(function(){
-					eleFilter($(this));
-					$(this).prop("outerHTML","<a>"+$(this).html()+"</a>");
-				});
-				a.children("tt").each(function(){
-					eleFilter($(this));
-					$(this).prop("outerHTML","<tt>"+$(this).html()+"</tt>");
-				});
-				a.children("em").each(function(){
-					eleFilter($(this));
-					$(this).prop("outerHTML","<em>"+$(this).html()+"</em>");
-				});
+				/*/方法一
+					if(!a.children().text()){
+						return;
+					}
+					a.children().not("a,tt,em").each(function(){
+						$(this).prop("outerHTML",$(this).html());
+					});
+					var b=a.children("a,tt,em");
+					if(!b.text()){
+						return;
+					}
+					if(b.length==1&&a.contents().filter(function(){return this.nodeType==3}).length==0){
+						b.contents(0).unwrap();
+						eleFilter(a);
+						return;
+					}
+					var n=efn++;
+					b.each(function(){
+						eleFilter($(this));
+						$(this).prop("outerHTML","<c"+n+">"+$(this).html()+"</c"+n+">");
+						n=efn++;
+					});
+				//*/
+				//*方法二
+					var ac=a.find("*");
+					var acOut=ac.filter(function(){return this.tagName=="A"?false:(this.tagName=="TT"?false:(this.tagName=="EM"?false:true))});
+					var acIn=ac.filter(function(){return this.tagName=="A"?true:(this.tagName=="TT"?true:(this.tagName=="EM"?true:false))});
+					acOut.each(function(){
+						$(this).contents(0).unwrap();
+					});
+					var n=0,tag="",arr=[];
+					acIn.each(function(){
+						tag=$(this).prop("outerHTML").replace($(this).html(),"");
+						if(n==0||$(this).text()!=$(this).parent().text()){
+							arr[n]=tag;
+							$(this).wrap("<c"+(n++)+">").contents(0).unwrap();
+						}
+						else{
+							var tag2=arr[n-1];
+							arr[n-1]=tag2.replace(/^(<.*?)(<\/.+)/,"$1")+tag+tag2.replace(/^(<.*?)(<\/.+)/,"$2");
+							$(this).contents(0).unwrap();
+						}
+					});
+					return arr;
+				//*/
 			}
 		//文本节点递归操作
 			function recursionText(a){
@@ -252,6 +279,7 @@ window.onload=function(){
 			var state=true;
 			var origin="";
 			function htmlToTrans(a){
+				efn=0;
 				if(a.children("a,tt,em").text()){
 					var oHtml=a.html();
 					eleFilter(a);
@@ -273,44 +301,23 @@ window.onload=function(){
 			function transToHtml(a,b){
 				var ele=$("<div></div>");
 				ele.html(a);
-				if(ele.children("a,tt,em").text()){
-					if(b.children("a").text()){
-						var n=ele.children("a").length;
+				var arr=eleFilter($("<div>"+b.html()+"</div>"));
+				var bc=b.find("a,tt,em");
+				var ec=ele.find("*");
+				if(ele.children("c0").text()){
+					if(bc.text()){
+						var n=ec.length;
 						for(var i=0;i<n;i++){
-							var target1=b.children("a").eq(i);
-							var target2=ele.children("a").eq(i);
-							var tag=target1.prop("outerHTML").replace(target1.html(),"");
-							target2.wrap(tag).contents(0).unwrap();
-							target2=ele.children("a").eq(i);
-							if(target2.children("a,tt,em").text()){
-								target2.html(transToHtml(target2.html(),target1));
-							}
-						}
-					}
-					if(ele.children("tt").text()){
-						var n=ele.children("tt").length;
-						for(var i=0;i<n;i++){
-							var target1=b.children("tt").eq(i);
-							var target2=ele.children("tt").eq(i);
-							var tag=target1.prop("outerHTML").replace(target1.html(),"");
-							target2.wrap(tag).contents(0).unwrap();
-							target2=ele.children("tt").eq(i);
-							if(target2.children("a,tt,em").text()){
-								target2.html(transToHtml(target2.html(),target1));
-							}
-						}
-					}
-					if(ele.children("em").text()){
-						var n=ele.children("em").length;
-						for(var i=0;i<n;i++){
-							var target1=b.children("em").eq(i);
-							var target2=ele.children("em").eq(i);
-							var tag=target1.prop("outerHTML").replace(target1.html(),"");
-							target2.wrap(tag).contents(0).unwrap();
-							target2=ele.children("em").eq(i);
-							if(target2.children("a,tt,em").text()){
-								target2.html(transToHtml(target2.html(),target1));
-							}
+							var target=ec.eq(i);
+							var bn=ec.eq(i).prop("tagName").replace(/c/i,"");
+							bn=parseInt(bn);
+							var tag=arr[bn];
+							/*多<c>标签无意义嵌套时的标签转换方法
+							while(target1.children("a,tt,em").text()){
+								target1=target1.children("a,tt,em").eq(0);
+								tag=tag.replace(/^(<.*?)(<\/.+)/,"$1")+target1.prop("outerHTML").replace(target1.html(),"")+tag.replace(/^(<.*?)(<\/.+)/,"$2");
+							}*/
+							target.wrap(tag).contents(0).unwrap();
 						}
 					}
 					b.html(ele.html());
@@ -332,19 +339,118 @@ window.onload=function(){
 				}
 				return b;
 			}
+		//用新的格式把翻译格式化
+			function formatTrans(a,b){
+				var ele1=$("<div>"+a+"</div>");
+				var ele2=$("<div>"+b+"</div>");
+				var pattern=/\u4e00-\u9fa5/;
+				var ecIn=ele1.find("*").filter(function(){return $(this).text()!=$(this).parent().text()||$(this).prop("outerHTML")==ele1.html()});
+				var ecOut=ele1.find("*").filter(function(){return $(this).prop("outerHTML")!=ele1.html()&&$(this).text()==$(this).parent().text()});
+				var ec2=ele2.find("*");
+				if(ecOut.length!=0){
+					ecOut.each(function(){
+						$(this).contents(0).unwrap();
+					});
+				}
+				if(ec2.length!=0&&ec2.length==ecIn.length){
+					var n=ec2.length;
+					if(n==1){
+						ecIn.eq(0).wrap("<c0>").contents(0).unwrap();
+						return ele1.html();
+					}
+					else{
+						var zhFlag,total=0,zhCount=n,record=-1,array=[],arrFlag=false;
+						//array记录已匹配的c标签，防止标签内容相同时重复匹配，相同内容标签默认按顺序匹配
+						for(var i=0;i<n;i++){
+							zhFlag=false;
+							for(var j=0;j<n;j++){
+								if(ecIn.eq(i).text()==ec2.eq(j).text()){
+									for(var k=0;k<array.length;k++){
+										if(j==array[k]){
+											arrFlag=true;
+										}
+									}
+									if(arrFlag){
+										arrFlag=false;
+										continue;
+									}
+									ecIn.eq(i).wrap("<c"+j+">").contents(0).unwrap();
+									total+=j;
+									zhCount--;
+									zhFlag=true;
+									array.push(j);
+									break;
+								}
+							}
+							if(!zhFlag){
+								record=i;
+							}
+						}
+						if(zhCount>1){
+							return false;
+						}
+						else{
+							if(zhCount==1){
+								ecIn.eq(record).wrap("<c"+((n*(n-1))/2-total)+">").contents(0).unwrap();
+							}
+							return ele1.html();
+						}
+					}
+				}
+				else if(ec2.length==0&&ecIn.length==0){
+					return a;
+				}
+				else{
+					return false;
+				}
+			}
 	//把table数据覆盖进页面
 		var interval=setInterval(function(){
 			if(table){
 				clearInterval(interval);
-				var font_id=0,that;
+				var font_id=0,that,array=[],newZh;
 				for(var i=0;i<table.length;i++){
 					font_id=table[i][0];
 					that=$("font#"+font_id);
 					table[i][2]=that.html();
 					table[i][3]=that.text();
+					//*格式化翻译
+						htmlToTrans(that);
+						table[i][4]=origin;
+						newZh=formatTrans(table[i][1],table[i][4]);
+						if(newZh){
+							table[i][1]=newZh;
+						}
+						else{
+							array.push(font_id);
+						}
+					//*/
 					transToHtml(table[i][1],that);
 					that.addClass("ripe");
 				}
+				//*格式化翻译
+					var table2=[];
+					for(var i=0;i<table.length;i++){
+						table2[i]=[];
+						table2[i][0]=table[i][0];
+						table2[i][1]=table[i][1];
+					}
+					var formData={
+						content:table2,
+						id:array
+					};console.log(formData)
+					$.ajax({
+						url:"/sendenst",
+						type:"post",
+						data:JSON.stringify(formData),
+						success:function(data){
+							console.log("发送成功");
+						},
+						error:function(){
+							console.log(arguments);
+						}
+					});
+				//*/
 			}
 		},1000);
 	//创建显示窗口
