@@ -103,7 +103,7 @@ window.onload=function(){
 				}
 			});
 		//p元素合并成一句
-			$("p,dl").each(function(){
+			$("p,dt,dl").each(function(){
 				if($(this).parents("font.stc").text()||exist($(this),"font.stc")){
 					return;
 				}
