@@ -103,8 +103,8 @@ window.onload=function(){
 				}
 			});
 		//p元素合并成一句
-			$("p,dt,dl").each(function(){
-				if($(this).parents("font.stc").text()||exist($(this),"font.stc")){
+			$("p,dt,dd").each(function(){
+				if(!$(this).text()||$(this).parents("font.stc").text()||exist($(this),"font.stc")){
 					return;
 				}
 				unFont($(this));
@@ -239,7 +239,12 @@ window.onload=function(){
 					var acOut=ac.filter(function(){return this.tagName=="A"?false:(this.tagName=="TT"?false:(this.tagName=="EM"?false:true))});
 					var acIn=ac.filter(function(){return this.tagName=="A"?true:(this.tagName=="TT"?true:(this.tagName=="EM"?true:false))});
 					acOut.each(function(){
-						$(this).contents(0).unwrap();
+						if($(this).contents(0).text()){
+							$(this).contents(0).unwrap();
+						}
+						else{
+							$(this).remove();
+						}
 					});
 					var n=0,tag="",arr=[];
 					acIn.each(function(){
@@ -280,7 +285,7 @@ window.onload=function(){
 			var origin="";
 			function htmlToTrans(a){
 				efn=0;
-				if(a.children("a,tt,em").text()){
+				if(a.find("a,tt,em").text()){
 					var oHtml=a.html();
 					eleFilter(a);
 					recursionText(a);
@@ -414,7 +419,7 @@ window.onload=function(){
 					that=$("font#"+font_id);
 					table[i][2]=that.html();
 					table[i][3]=that.text();
-					//*格式化翻译
+					/*格式化翻译
 						htmlToTrans(that);
 						table[i][4]=origin;
 						newZh=formatTrans(table[i][1],table[i][4]);
@@ -428,7 +433,7 @@ window.onload=function(){
 					transToHtml(table[i][1],that);
 					that.addClass("ripe");
 				}
-				//*格式化翻译
+				/*格式化翻译
 					var table2=[];
 					for(var i=0;i<table.length;i++){
 						table2[i]=[];
@@ -550,7 +555,7 @@ window.onload=function(){
 					$(".trans-box .restore1").show();
 					$(".trans-box .post").css("margin-left","108px");
 				}
-				else{
+				else{console.log(en)
 					$(".trans-box .restore1").hide();
 					$(".trans-box .post").css("margin-left","160px");
 				}
