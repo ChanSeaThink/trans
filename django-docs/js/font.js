@@ -555,7 +555,7 @@ window.onload=function(){
 					$(".trans-box .restore1").show();
 					$(".trans-box .post").css("margin-left","108px");
 				}
-				else{console.log(en)
+				else{
 					$(".trans-box .restore1").hide();
 					$(".trans-box .post").css("margin-left","160px");
 				}
