@@ -612,7 +612,10 @@ window.onload=function(){
 		$(".trans-box .zh").focus(function(){
 			if(flag){
 				if($(this).text()=="尚未翻译..."){
+					var selection = window.getSelection();
 					$(this).text("");
+					selection.selectAllChildren(this);
+        			selection.collapseToEnd();
 				}
 			}
 			$(".trans-box .hint,.trans-box .warn").hide();
